@@ -1,32 +1,43 @@
-﻿using HermesChat.Models;
+﻿using HermesChat.Data;
+using HermesChat.Enums;
+using HermesChat.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using System.Data.Entity;
 
-namespace HermesChat.Controllers
+namespace Hermes.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private AppDbContext _appDbContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(AppDbContext appDbContext)
         {
-            _logger = logger;
+            _appDbContext = appDbContext;
         }
 
-        public IActionResult Index()
+        public IActionResult Index() => View();
+
+        [HttpGet("{id}")]
+        public IActionResult Chat(int id)
         {
-            return View();
+            var chat = _appDbContext.Chats
+                .Include(item => item.Messages)
+                .FirstOrDefault(item => item.Id == id);
+            return View(chat);
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        public async Task<IActionResult> CreateRoom(string name)
         {
-            return View();
-        }
+            _appDbContext.Chats.Add(new Chat
+            {
+                Name = name,
+                Type = ChatType.Room
+            });
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            await _appDbContext.SaveChangesAsync();
+
+            return RedirectToAction("Index");
         }
     }
 }

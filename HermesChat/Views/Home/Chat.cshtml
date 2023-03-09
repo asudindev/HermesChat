@@ -1,0 +1,22 @@
+﻿@model Chat
+
+<div class="chat-body">
+    @foreach(var message in Model.Messages) {
+        <div class="message">
+            <div class="message-image">
+            </div>
+
+            <div class="message-preview">
+                <h4>@message.Name:</h4>
+                <text1>
+                    @message.Text
+                </text1>
+                <footer>@message.Timestamp</footer>
+            </div>
+        </div>
+    }
+</div>
+<div class="chat-input">
+    <input type="text" />
+    <button><img src="~/img/send.svg" class="svg-icon" /></button>
+</div>
